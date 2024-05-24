@@ -21,7 +21,7 @@ const MainComponent: m.Component = {
     const restCellV = charger.getRestCellV() ?? 0;
     const cellCount = charger.getCellCount() ?? 0;
     const capacityAh = charger.getCapacityAh();
-    const socStr = ((soc ? soc.toFixed(1) : "NA.0") + "%").split(".");
+    const socStr = ((soc ? soc.toFixed(1) : "0.0") + "%").split(".");
     if (!Preset.userPreset.isSet() && soc) {
       //first good charger data
       Preset.userPreset.soc = soc;
@@ -32,21 +32,24 @@ const MainComponent: m.Component = {
     const allPresets = Preset.getAllPresets();
     console.log("render selected", Preset.currentPreset);
 
-    const outputPowerDisplay = (status.dcOutputVoltage * status.dcOutputCurrent).toFixed(1) + "W";
     const cRating = capacityAh ? status.dcOutputCurrent / capacityAh : 0;
-
+    const showCurrentSetpoint = !soc || status.dcOutputCurrent < 0.01;
     return [
       m("h2", [m(".val", [socStr[0], m("span.small", "." + socStr[1])])]),
       m("h3", [
         m(".val", timeEst ? Charger.timeStr(timeEst) : "∞"),
-        m(".sub", ["until " + goalSOCShow.toFixed(0) + "%"]),
+        m(".sub", [
+          !charger.isConnected() ? "disconnected" :
+          showCurrentSetpoint ? "idle" :
+          "until " + goalSOCShow.toFixed(0) + "%"
+        ]),
       ]),
       m(".status", [
         // Goal Charge Percentage
         m(StatusTile, {
           editableValue: (goalSOC ?? 0).toFixed(0),
           displayValue: (goalSOC ?? 0).toFixed(0) + "%",
-          subscript: "setpoint",
+          subscript: "setpoint. " + charger.setpoint.voltage.toFixed(1) + "V",
           onChange: (valueStr) => {
             const value = Number(valueStr);
             if (!isFinite(value)) return;
@@ -59,11 +62,11 @@ const MainComponent: m.Component = {
         // Output Current
         m(StatusTile, {
           editableValue: currentPreset.getCurrent().toFixed(1),
-          displayValue:
-            status.dcOutputCurrent > 0
-              ? status.dcOutputCurrent.toFixed(1) + "/" + currentPreset.getCurrent().toFixed(1) + "A"
-              : currentPreset.getCurrent().toFixed(1) + "A",
-          subscript: outputPowerDisplay,
+          displayValue: showCurrentSetpoint ?
+              currentPreset.getCurrent().toFixed(1) + "A" :
+              status.dcOutputCurrent.toFixed(1) + "A",
+          subscript: showCurrentSetpoint ? "setpoint" :
+            (status.dcOutputVoltage * status.dcOutputCurrent).toFixed(1) + "W",
           onChange: (valueStr) => {
             const value = Number(valueStr);
             if (!isFinite(value)) return;
