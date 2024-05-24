@@ -30,7 +30,7 @@ const MainComponent: m.Component = {
       console.log("user preset set", Preset.userPreset, "current", Preset.currentPreset);
     }
     const allPresets = Preset.getAllPresets();
-    console.log("render selected", Preset.currentPreset);
+    console.log("render, currentPreset:", Preset.currentPreset);
 
     const cRating = capacityAh ? status.dcOutputCurrent / capacityAh : 0;
     const showCurrentSetpoint = !soc || status.dcOutputCurrent < 0.01;
@@ -44,6 +44,7 @@ const MainComponent: m.Component = {
           "until " + goalSOCShow.toFixed(0) + "%"
         ]),
       ]),
+      m("hr"),
       m(".status", [
         // Goal Charge Percentage
         m(StatusTile, {
@@ -51,12 +52,9 @@ const MainComponent: m.Component = {
           displayValue: (goalSOC ?? 0).toFixed(0) + "%",
           subscript: "setpoint. " + charger.setpoint.voltage.toFixed(1) + "V",
           onChange: (valueStr) => {
-            const value = Number(valueStr);
-            if (!isFinite(value)) return;
-            // TODO: This sets the charger voltage via Preset.. Too much
-            // indirection here. I think we should move away from the singleton
-            // pattern.
-            Preset.userPreset.setSoc(value);
+            console.log("set soc", valueStr);
+            Preset.userPreset.setSoc(Number(valueStr));
+            Preset.currentPreset = Preset.inferPreset();
           },
         }),
         // Output Current
@@ -68,10 +66,9 @@ const MainComponent: m.Component = {
           subscript: showCurrentSetpoint ? "setpoint" :
             (status.dcOutputVoltage * status.dcOutputCurrent).toFixed(1) + "W",
           onChange: (valueStr) => {
-            const value = Number(valueStr);
-            if (!isFinite(value)) return;
-            console.log(value);
-            Preset.userPreset.setCurrent(value);
+            console.log("set current", valueStr);
+            Preset.userPreset.setCurrent(Number(valueStr));
+            Preset.currentPreset = Preset.inferPreset();
           },
         }),
         // C Rating
@@ -101,6 +98,7 @@ const MainComponent: m.Component = {
           subscript: "@ rest",
         }),
       ]),
+      m("hr"),
       m(".input-group", [
         m("label", "Presets"),
         m(SelectInput, {

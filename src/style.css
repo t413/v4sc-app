@@ -34,7 +34,6 @@ body {
   max-width: 500px;
   display: flex;
   flex-direction: column;
-  padding-top: 30px;
 }
 
 .status {
@@ -85,8 +84,8 @@ body {
 h2,
 h3 {
   font-size: 140px;
-  margin: 0 auto;
-  line-height: 0.9;
+  line-height: 0.94;
+  margin: 30px auto 0;
 }
 h2 .val,
 h3 .val,
@@ -100,7 +99,7 @@ h2 .small {
 /* secondary value, full width, smaller, has - value - ticks and subheading */
 h3 {
   width: 80%;
-  padding-bottom: 8px;
+  margin: 0 auto 20px;
   font-size: 50px;
 }
 h3 .val::before,
@@ -126,26 +125,41 @@ h4 .sub {
   font-size: 16px;
   text-align: center;
 }
-.input-group {
-  text-align: right;
+
+button, select {
+  border: 1px solid #fff;
+  border-radius: 8px;
+  background-color: #000;
+  color: #fff;
 }
-.input-group input,
-.input-group select {
-  margin: 4px 10px 4px;
-  padding: 3px;
-  font-size: 16px;
+
+/* before the first .input-group make a dividing line */
+
+hr {
   width: 60%;
+  margin: 10px auto;
+  border: 0;
+  border-top: 1px solid #333;
+}
+
+.input-group {
+  width: 90%;
+  margin: 8px auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+select {
+  flex: 1 1 auto;
+  font-size: 16px;
 }
 
 button {
   font-size: 18px;
-  width: 100%;
+  width: 90%;
+  margin: 0 auto;
   padding: 10px;
   margin-top: 10px;
-  border: 0;
-  border-radius: 8px;
-  background-color: #eee;
-  color: rgba(0, 0, 0, 0.85);
   user-select: none;
   cursor: pointer;
   transition: all 0.05s ease-out;
@@ -153,7 +167,7 @@ button {
   -webkit-tap-highlight-color: transparent;
   &:active {
     transform: scale(105%);
-    background-color: rgb(0, 255, 149);
+    background-color: #222;
   }
 }
 

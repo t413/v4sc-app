@@ -50,30 +50,30 @@ export class Preset {
   }
   setSoc(newsoc: number) {
     this.soc = newsoc;
+    if (!this.isSet())
+      this.current = charger.setpoint.current;
     this.sendOutputVoltage();
-    Preset.inferPreset();
   }
   setVoltage(newvoltage: number) {
     if (newvoltage > 5) newvoltage = newvoltage / (charger.getCellCount() ?? 1);
     this.soc = Charger.getSOCFromVoltage(newvoltage);
+    if (!this.isSet())
+      this.current = charger.setpoint.current;
     this.sendOutputVoltage();
-    Preset.inferPreset();
   }
   setCurrent(newcurrent: number) {
     this.current = newcurrent;
+    if (!this.isSet())
+      this.soc = Charger.getSOCFromVoltage(charger.setpoint.voltage / (charger.getCellCount() ?? 1));
     this.sendOutputCurrent();
-    Preset.inferPreset();
   }
   static inferPreset() {
     const soc = charger.getSetpointSoc() ?? 0;
-    for (const p of presets) {
+    for (const p of presets)
       // now find a preset that matches
-      if (Math.abs(p.soc - soc) < 1 && Math.abs(p.current - charger.setpoint.current) < 0.3) {
-        Preset.currentPreset = p;
-        return;
-      }
-    }
-    Preset.currentPreset = Preset.userPreset; //fallback
+      if (Math.abs(p.soc - soc) < 1 && Math.abs(p.current - charger.setpoint.current) < 0.3)
+        return p;
+    return Preset.userPreset; //fallback
   }
 
   static getAllPresets() {
