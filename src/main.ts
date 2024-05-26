@@ -15,9 +15,9 @@ const MainComponent: m.Component = {
     const currentPreset = Preset.currentPreset;
 
     const soc = charger.getStateOfCharge();
-    const goalSOC = charger.getSetpointSoc();
-    const goalSOCShow = !goalSOC || goalSOC > 90 ? 90 : goalSOC;
-    const timeEst = charger.getTimeEstimateSoc(goalSOCShow);
+    const setpointSOC = charger.getSetpointSoc();
+    const asymtoteSOC = charger.getAsymptoteSOC();
+    const timeEst = charger.getTimeEstimateSoc(asymtoteSOC);
     const restCellV = charger.getRestCellV() ?? 0;
     const cellCount = charger.getCellCount() ?? 0;
     const capacityAh = charger.getCapacityAh();
@@ -41,15 +41,15 @@ const MainComponent: m.Component = {
         m(".sub", [
           !charger.isConnected() ? "disconnected" :
           showCurrentSetpoint ? "idle" :
-          "until " + goalSOCShow.toFixed(0) + "%"
+          "until " + asymtoteSOC?.toFixed(1) + "%"
         ]),
       ]),
       m("hr"),
       m(".status", [
         // Goal Charge Percentage
         m(StatusTile, {
-          editableValue: (goalSOC ?? 0).toFixed(0),
-          displayValue: (goalSOC ?? 0).toFixed(0) + "%",
+          editableValue: (setpointSOC ?? 0).toFixed(0),
+          displayValue: (setpointSOC ?? 0).toFixed(0) + "%",
           subscript: "setpoint. " + charger.setpoint.voltage.toFixed(1) + "V",
           onChange: (valueStr) => {
             console.log("set soc", valueStr);
